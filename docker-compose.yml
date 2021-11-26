@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  market-mongo:
+    image: mongo
+    container_name: market-mongo
+    restart: unless-stopped
+    ports:
+      - 27020:27017
+    volumes:
+      - mongo-data:/data/db
+
+  market-redis:
+    image: redis:6-alpine
+    container_name: market-redis
+    restart: unless-stopped
+    ports:
+      - 6380:6379
+    volumes:
+      - mongo-redis:/data
+
+  market-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: market-rabbitmq
+    restart: always
+    ports:
+      - 5680:5672
+
+  market-restful:
+    build:
+      context: .
+    image: market/market-restful:latest
+    container_name: market-restful
+    ports:
+      - $PORT:$PORT
+    env_file:
+      - ./.env
+    command: /bin/sh -c "pm2-runtime start pm2/start.yml"
+    depends_on:
+      - market-mongo
+      - market-redis
+      - market-rabbitmq
+
+volumes:
+  mongo-redis: null
+  mongo-data: null
