@@ -1,5 +1,5 @@
 up:
-	docker-compose up -d kompa-redis kompa-mongo
+	docker-compose up -d market-redis market-mongo market-rabbitmq
 
 stop:
-	docker-compose stop kompa-redis kompa-mongo
+	docker-compose stop market-redis market-mongo market-rabbitmq
