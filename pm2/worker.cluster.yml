@@ -1,0 +1,10 @@
+apps:
+  - script: ./dist/schedules/workerStorageEventLog.js
+    name: 'worker-storage-event-data'
+    watch: false
+    instances: 4
+    exec_mode: cluster
+    env:
+      NODE_ENV: production
+    env_production:
+      NODE_ENV: production

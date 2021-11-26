@@ -43,3 +43,19 @@ services:
       - market-mongo
       - market-redis
       - market-rabbitmq
+
+  market-restful-worker:
+    build:
+      context: .
+    image: market/market-restful:latest
+    container_name: market-worker-event
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/code/
+    command: /bin/sh -c "pm2-runtime start pm2/worker.cluster.yml"
+    depends_on:
+      - market-mongo
+      - market-redis
+      - market-rabbitmq
+      - market-restful

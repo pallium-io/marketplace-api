@@ -4,6 +4,7 @@ const schema = {
   eventName: String,
   blockHash: String,
   contractAddress: String,
+  nftAddress: String,
   transactionHash: String,
   timestamp: Number,
   tokenId: Number,

@@ -48,10 +48,10 @@ Follow all step bellow to setup your dev environment
 2. Start your environment (We are using Docker for environment setup)
 
 3. Setup environment variables.
-   Create environment config file and config `mongo` and `redis` connection params
+   Create environment config file and config `mongo`, `rabbitmq` and `redis` connection params
 
    Generate secret token: `head -n 4096 /dev/urandom | openssl sha1`
-   Paste the result into JWT_SECRET_TOKEN in .env file
+   Paste the result into JWT_ACCESS_TOKEN_SECRET, JWT_REFRESH_TOKEN_SECRET in .env file
 
 ```sh
 cp .env.example .env
