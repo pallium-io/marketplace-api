@@ -45,7 +45,7 @@ const SCEvent = async ({ messageQueue }) => {
     const dataTransactionReceipt = await provider.getTransactionReceipt(event.transactionHash);
     const { timestamp } = dataBlock;
     const { gasPrice, value } = dataTransaction;
-    const { from, to, gasUsed } = dataTransactionReceipt;
+    const { from, to, gasUsed, logs } = dataTransactionReceipt;
 
     // retreive tokenId from the buy transaction
     let tokenIds = [];
