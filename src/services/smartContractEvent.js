@@ -27,7 +27,7 @@ const SCEvent = async ({ messageQueue }) => {
       if (address === nft.address) {
         const { name, args } = nft.interface.parseLog({ data, topics });
         // make sure this is a mint event i.e. transfer from address(0) to buyer
-        if (name === 'Transfer' && args.from === ethers.constants.AddressZero && args.to === buyer.address) {
+        if (name === 'Transfer' && args.from === ethers.constants.AddressZero && args.to === buyer) {
           tokenIds.push(args.tokenId);
         }
       }
@@ -55,7 +55,8 @@ const SCEvent = async ({ messageQueue }) => {
       to,
       value,
       gasPrice,
-      gasUsed
+      gasUsed,
+      type: 'bulk'
     };
     // console.log('storageTransaction: ', storageTransaction);
 
@@ -95,7 +96,8 @@ const SCEvent = async ({ messageQueue }) => {
       to,
       gasUsed,
       gasPrice,
-      value
+      value,
+      type: 'bulk'
     };
     // console.log('storageTransaction: ', storageTransaction);
 

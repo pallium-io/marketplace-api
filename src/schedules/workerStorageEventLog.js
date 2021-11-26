@@ -18,7 +18,7 @@ async function processQueue(msg, channel) {
     // Transaction
     // Ignore record if existed transactionHash
     // Storage many records each the tokenIds
-    const txnHashExisted = await Transaction.collection.exists({ transactionHash });
+    const txnHashExisted = await Transaction.collection.exists({ transactionHash: data.transactionHash });
 
     if (!txnHashExisted) {
       if (tokenIds?.length > 0)

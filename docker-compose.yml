@@ -8,7 +8,7 @@ services:
     ports:
       - 27020:27017
     volumes:
-      - mongo-data:/data/db
+      - .docker/data/mongo:/data/db
 
   market-redis:
     image: redis:6-alpine
@@ -17,7 +17,7 @@ services:
     ports:
       - 6380:6379
     volumes:
-      - mongo-redis:/data
+      - .docker/data/redis:/data
 
   market-rabbitmq:
     image: rabbitmq:3-management
@@ -25,6 +25,7 @@ services:
     restart: always
     ports:
       - 5680:5672
+      - 15680:15672
 
   market-restful:
     build:
@@ -35,12 +36,10 @@ services:
       - $PORT:$PORT
     env_file:
       - ./.env
+    volumes:
+      - ./:/code/
     command: /bin/sh -c "pm2-runtime start pm2/start.yml"
     depends_on:
       - market-mongo
       - market-redis
       - market-rabbitmq
-
-volumes:
-  mongo-redis: null
-  mongo-data: null

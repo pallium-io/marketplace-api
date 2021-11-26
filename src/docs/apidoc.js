@@ -37,7 +37,7 @@ const apiDocumentation = {
   },
   servers: [
     {
-      url: 'http://localhost:9000/v1',
+      url: 'http://localhost:9000/api/v1',
       description: 'Local Server'
     },
     {

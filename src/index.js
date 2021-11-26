@@ -99,10 +99,10 @@ async function init() {
       // Listening Event Emit on SmartContract
       smartContractEvent({ messageQueue: MessageQueue });
       // Use Route
-      app.use('/v1', routes);
+      app.use('/api/v1', routes);
       // The `listen` method launches a web server.
       app.listen(config.port, () => {
-        logger.info(`🚀 Server ready at http://localhost:${config.port}/v1`);
+        logger.info(`🚀 Server ready at http://localhost:${config.port}/api/v1`);
         logger.info(`🚀 Server health check at http://localhost:${config.port}/health`);
         logger.info(`🚀 API Document at http://localhost:${config.port}/documentation`);
       });
