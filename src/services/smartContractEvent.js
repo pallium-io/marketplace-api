@@ -83,7 +83,8 @@ const SCEvent = async ({ messageQueue }) => {
       to,
       value,
       gasPrice,
-      gasUsed
+      gasUsed,
+      type: 'bulk'
     };
     // console.log('storageTransaction: ', storageTransaction);
 
@@ -123,7 +124,8 @@ const SCEvent = async ({ messageQueue }) => {
       to,
       gasUsed,
       gasPrice,
-      value
+      value,
+      type: 'bulk'
     };
     // console.log('storageTransaction: ', storageTransaction);
 
