@@ -1,6 +1,4 @@
-import { isValidObjectId } from 'mongoose';
 import config from '../../configs';
-import { SC_EVENT } from '../../configs/constant';
 import generateDS from '../../datasources';
 import { validateLastTxns } from './validation';
 
