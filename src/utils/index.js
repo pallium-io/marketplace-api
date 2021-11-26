@@ -1,3 +1,5 @@
+import { ethers } from 'ethers';
+
 const cleanObject = object => {
   Object.entries(object).forEach(([k, v]) => {
     if (v && typeof v === 'object') cleanObject(v);
@@ -120,6 +122,34 @@ const proccessFieldLogical = filter => filter.reduce((acc, item) => [...acc, pro
 
 const isObject = item => typeof item === 'object' && !Array.isArray(item) && item !== null;
 
+const parseObjectFieldBigNumber = data => {
+  return Object.entries(data).reduce((prev, current) => {
+    let [key, value] = current;
+
+    if (isObject(value) && ethers.BigNumber.isBigNumber(value)) {
+      value = ethers.BigNumber.from(value).toString();
+      value = parseFloat(value);
+    } else if (isObject(value)) {
+      value = parseObjectFieldBigNumber(value);
+    }
+
+    if (Array.isArray(value)) {
+      value = value.map(item => {
+        if (isObject(item) && ethers.BigNumber.isBigNumber(item)) {
+          item = ethers.BigNumber.from(item).toBigInt();
+          item = parseFloat(item);
+        } else if (isObject(item)) item = parseObjectFieldBigNumber(item);
+        return item;
+      });
+    }
+
+    return {
+      ...prev,
+      [key]: value
+    };
+  }, {});
+};
+
 export {
   isObject,
   cleanObject,
@@ -128,5 +158,6 @@ export {
   proccessFieldComparison,
   proccessFieldLogical,
   getPageInfo,
-  proccessAggsQuery
+  proccessAggsQuery,
+  parseObjectFieldBigNumber
 };
