@@ -30,6 +30,7 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
     isMongoose
       ? collection
           .find({ _id: { $in: ids } })
+          .populate('price.info')
           .lean()
           .then(orderDocs(ids))
       : collection
@@ -44,13 +45,13 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
     ? ({ queries }) =>
         collection
           .find({ $or: queries })
+          .populate('price.info')
           .collation({ locale: 'en' })
           .lean()
           .then(items => queries.map(query => items.filter(sift(query))))
     : ({ queries }) =>
         collection
           .find({ $or: queries })
-          .collation({ locale: 'en' })
           .toArray()
           .then(items => queries.map(query => items.filter(sift(query))));
 
@@ -68,6 +69,7 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
 
     return collection
       .find({ $or: filter }, select, option)
+      .populate('price.info')
       .collation({ locale: 'en' })
       .lean()
       .then(items =>
