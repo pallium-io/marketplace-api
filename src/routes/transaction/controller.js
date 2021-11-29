@@ -4,60 +4,19 @@ import { validateLastTxns } from './validation';
 
 const { Transaction, Buy, ListedItem } = generateDS;
 
-export const getLastTransactions = async (req, res) => {
-  let result = {
-    statusCode: 200,
-    message: 'Success'
-  };
-  try {
-    let { limit = 20, skip = 0 } = req.body;
-    if (limit > config.limitQuerySize) limit = config.limitQuerySize;
-
-    const docs = await Buy.filterAndPaging(
-      {
-        orderBy: {
-          timestamp: 'desc'
-        },
-        query: {},
-        limit,
-        skip
-      },
-      config.cache.ttlQuery
-    );
-    result = {
-      ...result,
-      ...docs
-    };
-    console.log('result: ', result);
-  } catch (error) {
-    result.statusCode = 404;
-    result.message = error.message;
-  }
-  return res.status(result.statusCode).json(result);
-};
-
 export const getTransactionHistories = async (req, res) => {
   let result = {
     statusCode: 200,
     message: 'Success'
   };
   try {
-    const validateInput = await validateLastTxns(req.body);
-    if (validateInput?.length) throw new Error(validateInput.map(item => item.message).join(','));
-
     let { orderBy = { timestamp: 'desc' }, where = {}, limit = 20, skip = 0 } = req.body;
     if (limit > config.limitQuerySize) limit = config.limitQuerySize;
 
-    const { address } = where;
-
-    const query = {
-      contractAddress: address
-    };
-
-    const docs = await Transaction.filterAndPaging(
+    const docs = await Buy.filterAndPaging(
       {
         orderBy,
-        query,
+        query: where,
         limit,
         skip
       },
@@ -68,7 +27,6 @@ export const getTransactionHistories = async (req, res) => {
       ...result,
       ...docs
     };
-    console.log('result: ', result);
   } catch (error) {
     result.statusCode = 404;
     result.message = error.message;

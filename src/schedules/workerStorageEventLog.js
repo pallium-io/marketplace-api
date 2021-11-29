@@ -21,17 +21,24 @@ async function processQueue(msg, channel) {
     let erc20Existed = await ERC20Token.collection.findOne({ address: price?.address }).exec();
 
     // save info erc20Token
-    if ((data.eventName === SC_EVENT.LISTED_ITEM || data.eventName === SC_EVENT.BUY) && !erc20Existed) {
-      const erc20TokenABI = await got(`${configSC.erc20TokenABIURL}${price?.address}`, {
-        method: 'GET',
-        responseType: 'json'
+    if ([SC_EVENT.LISTED_ITEM, SC_EVENT.BUY].includes(data.eventName) && !erc20Existed) {
+      const { body: responseErc20TokenABI } = await got.get(`${configSC.erc20TokenABIURL}${price?.address}`, {
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
+      if (!responseErc20TokenABI) {
+        logger.error(responseErc20TokenABI);
+        throw new Error('Have an error when call Erc20TokenABI');
+      }
 
       const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {
         chainId: configSC.chainIdSC
       });
 
-      const erc20 = new ethers.Contract(price?.address, JSON.parse(erc20TokenABI?.body?.result), provider);
+      const erc20 = new ethers.Contract(price?.address, JSON.parse(responseErc20TokenABI).result, provider);
       const erc20Decimals = await erc20.decimals();
       const erc20Symbol = await erc20.symbol();
       const erc20Name = await erc20.name();

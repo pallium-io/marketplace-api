@@ -11,8 +11,7 @@
     "start": "node dist/index.js",
     "build": "NODE_ENV=production && rm -rf dist/ & babel src --out-dir dist --copy-files",
     "dev": "nodemon --exec babel-node src/index.js",
-    "dev:event": "nodemon --exec babel-node src/schedules/workerStorageEventLog.js",
-    "dev:sync": "nodemon --exec babel-node src/schedules/syncERC20Token.js"
+    "dev:event": "nodemon --exec babel-node src/schedules/workerStorageEventLog.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.9.6",
