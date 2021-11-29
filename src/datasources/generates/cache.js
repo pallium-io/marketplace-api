@@ -89,6 +89,7 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
         .digest('hex');
       const key = cachePrefix + hashQuery;
       const cacheDoc = await cache.get(key);
+      logger.warn(`Caching ${key} - ${cacheDoc ? 'cache' : 'miss'}`);
       if (cacheDoc) {
         return JSON.parse(cacheDoc);
       }
@@ -104,7 +105,7 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
       const key = cachePrefix + id;
 
       const cacheDoc = await cache.get(key);
-      logger.debug('Caching', `KEY: ${key}, ${cacheDoc ? 'cache' : 'miss'}`);
+      logger.warn(`Caching ${key} - ${cacheDoc ? 'cache' : 'miss'}`);
       if (cacheDoc) {
         return JSON.parse(cacheDoc);
       }

@@ -15,6 +15,9 @@ import {
   updateUserPermission,
   updateUserPermissionBody
 } from './users';
+import { buyTransactionHistories, searchBuyTransactionBody } from './buy';
+
+import { getTopSellers } from './analysis';
 
 import { getConfig } from './config';
 
@@ -53,39 +56,59 @@ const apiDocumentation = {
     {
       name: 'Config',
       description: 'Config API'
+    },
+    {
+      name: 'Buy',
+      description: 'Buy API'
+    },
+    {
+      name: 'Analysis',
+      description: 'Analysis API'
     }
   ],
   paths: {
-    '/user/me': {
-      get: getMe
+    // '/user/me': {
+    //   get: getMe
+    // },
+    // '/user/login': {
+    //   post: login
+    // },
+    // '/user/register': {
+    //   post: register
+    // },
+    // '/user/logout': {
+    //   get: logout
+    // },
+    // '/user/change-password': {
+    //   put: changePassword
+    // },
+    // '/user/{id}': {
+    //   get: getUser
+    // },
+    // '/user/all': {
+    //   post: getUsers
+    // },
+    // '/user/info': {
+    //   put: updateUserInfo
+    // },
+    // '/user/permission': {
+    //   put: updateUserPermission
+    // },
+    // '/configs': {
+    //   get: getConfig
+    // },
+    '/buy/transactions/search': {
+      post: buyTransactionHistories
     },
-    '/user/login': {
-      post: login
-    },
-    '/user/register': {
-      post: register
-    },
-    '/user/logout': {
-      get: logout
-    },
-    '/user/change-password': {
-      put: changePassword
-    },
-    '/user/{id}': {
-      get: getUser
-    },
-    '/user/all': {
-      post: getUsers
-    },
-    '/user/info': {
-      put: updateUserInfo
-    },
-    '/user/permission': {
-      put: updateUserPermission
-    },
-    '/configs': {
-      get: getConfig
+    '/analysis/top-sellers': {
+      get: getTopSellers
     }
+    // '/analysis/top-sold': {
+    //   get: getTopSold
+    // },
+    // '/analysis/recently-listing': {
+    //   get: recentlyListing
+    // }
   },
   components: {
     securitySchemes: {
@@ -107,7 +130,8 @@ const apiDocumentation = {
       getUsersBody,
       updateUserInfoBody,
       updateUserPermission,
-      updateUserPermissionBody
+      updateUserPermissionBody,
+      searchBuyTransactionBody
     }
   }
 };
