@@ -50,7 +50,7 @@ const SCEvent = async ({ messageQueue }) => {
       quantity,
       price: {
         value: price,
-        erc20Address
+        address: erc20Address
       },
       from,
       to,
@@ -91,7 +91,7 @@ const SCEvent = async ({ messageQueue }) => {
       itemId,
       price: {
         value: price,
-        erc20Address
+        address: erc20Address
       },
       cap,
       from,
