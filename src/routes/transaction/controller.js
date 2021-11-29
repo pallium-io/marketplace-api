@@ -12,12 +12,26 @@ export const getTransactionHistories = async (req, res) => {
     let { orderBy = { timestamp: 'desc' }, where = {}, limit = 20, skip = 0 } = req.body;
     if (limit > config.limitQuerySize) limit = config.limitQuerySize;
 
+    const select = [
+      'timestamp',
+      'tokenId',
+      'itemId',
+      'contractAddress',
+      'nftAddress',
+      'price',
+      'transactionHash',
+      'from',
+      'to',
+      'value'
+    ];
+
     const docs = await Buy.filterAndPaging(
       {
         orderBy,
         query: where,
         limit,
-        skip
+        skip,
+        select
       },
       config.cache.ttlQuery
     );
