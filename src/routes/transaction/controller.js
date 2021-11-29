@@ -92,7 +92,7 @@ export const getTopSold = async (req, res) => {
   };
   try {
     const docs = await Buy.topSold();
-    if (docs.length > 0) {
+    if (docs?.length > 0) {
       result.data = docs;
     }
   } catch (error) {

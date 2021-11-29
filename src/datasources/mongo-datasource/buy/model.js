@@ -52,30 +52,51 @@ export default class ModelDataSource extends MongoDataSource {
         $project: {
           items: { $slice: ['$items', limit] }
         }
+      },
+      {
+        $lookup: {
+          from: 'col_erc20Tokens',
+          localField: 'items.price.info',
+          foreignField: '_id',
+          as: 'erc20TokenField'
+        }
+      },
+      { $unwind: { path: '$erc20TokenField' } },
+      {
+        $addFields: {
+          'items.price.contract_address': '$erc20TokenField.address',
+          'items.price.decimals': '$erc20TokenField.decimals',
+          'items.price.symbol': '$erc20TokenField.symbol',
+          'items.price.name': '$erc20TokenField.name'
+        }
       }
     ]);
 
     if (docs.length <= 0) return;
-    if (docs[0].items.length <= 0) return;
+    if (docs[0]?.items?.length <= 0) return;
 
     const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {
       chainId: configSC.chainIdSC
     });
     const contract = new ethers.Contract(configSC.nftCrowdsale, JSON.parse(configSC.nftCrowdsaleABI), provider);
-    let parcel = await contract.parcels(docs[0]._id);
+    let parcel = await contract.parcels(docs[0]?._id);
     parcel = parseObjectFieldBigNumber(parcel);
 
     docs = docs.map(doc => {
-      return doc?.items?.map(item => ({
-        type: 'bulk',
-        item_id: item?.itemId,
-        token_id: item?.tokenId,
-        contract_address: item?.contractAddress,
-        timestamp: item?.timestamp,
-        tx_hash: item?.transactionHash,
-        bulk_total: parcel?.cap,
-        bulk_quantity: parcel?.cap - parcel?.supply
-      }));
+      return doc?.items?.map(item => {
+        const { info, ...priceParams } = item.price;
+        return {
+          type: 'bulk',
+          item_id: item?.itemId,
+          token_id: item?.tokenId,
+          contract_address: item?.contractAddress,
+          timestamp: item?.timestamp,
+          tx_hash: item?.transactionHash,
+          bulk_total: parcel?.cap,
+          bulk_quantity: parcel?.cap - parcel?.supply,
+          price: priceParams
+        };
+      });
     });
     docs = flatten(docs);
     return docs;
