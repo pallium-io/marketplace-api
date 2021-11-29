@@ -129,65 +129,14 @@ export const getTopSellers = async (req, res) => {
 export const getTopSold = async (req, res) => {
   let result = {
     statusCode: 200,
-    message: 'Success'
+    message: 'Success',
+    data: []
   };
   try {
-    // const docs = await Transaction.filterAndPaging(
-    //   {
-    //     orderBy: {
-    //       timestamp: 'desc'
-    //     },
-    //     query: {
-    //       event: SC_EVENT.BUY
-    //     },
-    //     limit: 100,
-    //     skip: 0
-    //   },
-    //   config.cache.ttlQuery
-    // );
-    // result = {
-    //   ...result,
-    //   ...docs
-    // };
-
-    const topSold = [
-      {
-        type: 'bulk',
-        itemId: 1,
-        tokenId: 12,
-        contractAddress: '0x2498fEA2c0e2fF98872B3610F28D050221D5Dcc5',
-        price: {
-          value: 1000000000000000000,
-          erc20Address: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641',
-          decimals: 18,
-          symbol: 'SC',
-          name: 'StableCoin'
-        },
-        timestamp: 1637903616,
-        transactionHash: '0xfcc947208cbe0921654548f6f37edab80ce377a5b0bc45f760ab6c3852a89470',
-        bulkTotal: 77998,
-        bulkQty: 2
-      },
-      {
-        type: 'bulk',
-        itemId: 5,
-        tokenId: 15,
-        contractAddress: '0x2498fEA2c0e2fF98872B3610F28D050221D5Dcc5',
-        price: {
-          value: 1000000000000000000,
-          erc20Address: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641',
-          decimals: 18,
-          symbol: 'SC',
-          name: 'StableCoin'
-        },
-        timestamp: 1637903888,
-        transactionHash: '0xfcc947208cbe0921654548f6f37edab80ce377a5b0bc45f760ab6c3852a89471',
-        bulkTotal: 77998,
-        bulkQty: 2
-      }
-    ];
-    result.data = topSold;
-    console.log('result: ', result);
+    const docs = await Buy.topSold();
+    if (docs.length > 0) {
+      result.data = docs;
+    }
   } catch (error) {
     result.statusCode = 404;
     result.message = error.message;
