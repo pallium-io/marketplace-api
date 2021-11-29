@@ -21,7 +21,7 @@ async function processQueue(msg, channel) {
     let erc20Existed = await ERC20Token.collection.findOne({ address: price?.address }).exec();
 
     // save info erc20Token
-    if (data.eventName === SC_EVENT.LISTED_ITEM && !erc20Existed) {
+    if ((data.eventName === SC_EVENT.LISTED_ITEM || data.eventName === SC_EVENT.BUY) && !erc20Existed) {
       const erc20TokenABI = await got(`${configSC.erc20TokenABIURL}${price?.address}`, {
         method: 'GET',
         responseType: 'json'
@@ -56,6 +56,7 @@ async function processQueue(msg, channel) {
             async tokenId =>
               await Transaction.collection.create({
                 ...params,
+                eventName,
                 tokenId,
                 price: { value: price?.value, info: erc20Existed._id }
               })
@@ -80,6 +81,7 @@ async function processQueue(msg, channel) {
             async tokenId =>
               await Buy.collection.create({
                 ...params,
+                eventName,
                 tokenId,
                 price: { value: price?.value, info: erc20Existed._id }
               })
