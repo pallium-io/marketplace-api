@@ -1,10 +1,13 @@
+import got from 'got';
+import { ethers } from 'ethers';
 import logger from '../external-libs/winston';
 import MessageQueueService from '../external-libs/rabbitmq';
 import { connect as connectMongoDB } from '../external-libs/mongoose';
 import generateDS from '../datasources';
 import { SC_EVENT } from '../configs/constant';
+import configSC from '../configs/configSC.dev.js';
 
-const { Transaction, Buy, ListedItem } = generateDS;
+const { ERC20Token, Transaction, Buy, ListedItem } = generateDS;
 
 async function processQueue(msg, channel) {
   try {
@@ -13,7 +16,33 @@ async function processQueue(msg, channel) {
     const body = msg.content.toString();
     const data = JSON.parse(body);
     console.log('data: ', data);
-    const { tokenIds, ...params } = data;
+    const { price, eventName, tokenIds, ...params } = data;
+
+    let erc20Existed = await ERC20Token.collection.findOne({ address: price?.address }).exec();
+
+    // save info erc20Token
+    if (data.eventName === SC_EVENT.LISTED_ITEM && !erc20Existed) {
+      const erc20TokenABI = await got(`${configSC.erc20TokenABIURL}${price?.address}`, {
+        method: 'GET',
+        responseType: 'json'
+      });
+
+      const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {
+        chainId: configSC.chainIdSC
+      });
+
+      const erc20 = new ethers.Contract(price?.address, JSON.parse(erc20TokenABI?.body?.result), provider);
+      const erc20Decimals = await erc20.decimals();
+      const erc20Symbol = await erc20.symbol();
+      const erc20Name = await erc20.name();
+
+      erc20Existed = await ERC20Token.collection.create({
+        address: price?.address,
+        decimals: erc20Decimals,
+        symbol: erc20Symbol,
+        name: erc20Name
+      });
+    }
 
     // Transaction
     // Ignore record if existed transactionHash
@@ -22,9 +51,21 @@ async function processQueue(msg, channel) {
 
     if (!txnHashExisted) {
       if (tokenIds?.length > 0)
-        await Promise.all(tokenIds.map(async tokenId => await Transaction.collection.create({ ...params, tokenId })));
+        await Promise.all(
+          tokenIds.map(
+            async tokenId =>
+              await Transaction.collection.create({
+                ...params,
+                tokenId,
+                price: { value: price?.value, info: erc20Existed._id }
+              })
+          )
+        );
       else {
-        const result = await Transaction.collection.create(data);
+        const result = await Transaction.collection.create({
+          ...data,
+          price: { value: price?.value, info: erc20Existed._id }
+        });
         console.log('result: ', result);
       }
     } else {
@@ -34,9 +75,18 @@ async function processQueue(msg, channel) {
     // Buy
     if (data.eventName === SC_EVENT.BUY) {
       if (tokenIds?.length > 0)
-        await Promise.all(tokenIds.map(async tokenId => await Buy.collection.create({ ...params, tokenId })));
+        await Promise.all(
+          tokenIds.map(
+            async tokenId =>
+              await Buy.collection.create({
+                ...params,
+                tokenId,
+                price: { value: price?.value, info: erc20Existed._id }
+              })
+          )
+        );
       else {
-        const result = await Buy.collection.create(data);
+        const result = await Buy.collection.create({ ...data, price: { value: price?.value, info: erc20Existed._id } });
         console.log('Buy: ', result);
       }
     }
@@ -45,10 +95,14 @@ async function processQueue(msg, channel) {
     // Upsert data listedItem with unique key itemId
     if (data.eventName === SC_EVENT.LISTED_ITEM) {
       const { itemId, ...listedItemParams } = data;
-      const result = await ListedItem.collection.findOneAndUpdate({ itemId }, listedItemParams, {
-        new: true,
-        upsert: true // Make this update into an upsert
-      });
+      const result = await ListedItem.collection.findOneAndUpdate(
+        { itemId },
+        { ...listedItemParams, price: { value: price?.value, info: erc20Existed._id } },
+        {
+          new: true,
+          upsert: true // Make this update into an upsert
+        }
+      );
       console.log('ListedItem: ', result);
     }
 

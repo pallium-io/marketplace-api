@@ -1,3 +1,4 @@
+import { Schema } from 'mongoose';
 import generateModel from '../../generates/generateModel';
 
 const schema = {
@@ -13,10 +14,7 @@ const schema = {
   },
   price: {
     value: Number,
-    erc20Address: String,
-    decimals: String,
-    symbol: String,
-    name: String
+    info: { type: Schema.Types.ObjectId, ref: 'Erc20Token' }
   },
   from: String,
   to: String,

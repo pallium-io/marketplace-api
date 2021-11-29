@@ -1,7 +1,7 @@
 import generateModel from '../../generates/generateModel';
 
 const schema = {
-  erc20Address: {
+  address: {
     type: String,
     unique: true
   },
