@@ -248,4 +248,4 @@ const searchBuyTransactionBody = {
   }
 };
 
-export { buyTransactionHistories, searchBuyTransactionBody };
+export { buyTransactionHistories, searchBuyTransactionBody, priceObject };

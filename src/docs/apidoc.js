@@ -17,7 +17,7 @@ import {
 } from './users';
 import { buyTransactionHistories, searchBuyTransactionBody } from './buy';
 
-import { getTopSellers } from './analysis';
+import { getTopSellers, getTopSolds, recentlyListing } from './analysis';
 
 import { getConfig } from './config';
 
@@ -49,14 +49,14 @@ const apiDocumentation = {
     }
   ],
   tags: [
-    {
-      name: 'User',
-      description: 'User API'
-    },
-    {
-      name: 'Config',
-      description: 'Config API'
-    },
+    // {
+    //   name: 'User',
+    //   description: 'User API'
+    // },
+    // {
+    //   name: 'Config',
+    //   description: 'Config API'
+    // },
     {
       name: 'Buy',
       description: 'Buy API'
@@ -102,13 +102,13 @@ const apiDocumentation = {
     },
     '/analysis/top-sellers': {
       get: getTopSellers
+    },
+    '/analysis/top-sold': {
+      get: getTopSolds
+    },
+    '/analysis/recently-listing': {
+      get: recentlyListing
     }
-    // '/analysis/top-sold': {
-    //   get: getTopSold
-    // },
-    // '/analysis/recently-listing': {
-    //   get: recentlyListing
-    // }
   },
   components: {
     securitySchemes: {
