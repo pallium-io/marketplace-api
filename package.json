@@ -37,6 +37,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash.flatten": "^4.4.0",
     "lodash.isempty": "^4.4.0",
+    "luxon": "^2.1.1",
     "mongoose": "^5.9.18",
     "sift": "^13.1.10",
     "swagger-ui-express": "^4.1.6",
