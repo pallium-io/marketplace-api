@@ -8,7 +8,6 @@ const SCEvent = async ({ messageQueue }) => {
   });
   const contract = new ethers.Contract(configSC.nftCrowdsale, JSON.parse(configSC.nftCrowdsaleABI), provider);
   const nft = new ethers.Contract(configSC.nftAddress, JSON.parse(configSC.nftABI), provider);
-  const seller = await contract.owner();
 
   contract.on('Buy', async (buyer, itemId, quantity, price, erc20Address, event) => {
     console.log('Event Buy', { buyer, itemId, quantity, price, erc20Address, event });
@@ -47,7 +46,6 @@ const SCEvent = async ({ messageQueue }) => {
       timestamp,
       tokenIds,
       buyer,
-      seller,
       itemId,
       quantity,
       price: {
