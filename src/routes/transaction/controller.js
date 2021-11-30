@@ -15,8 +15,13 @@ export const getTransactionHistories = async (req, res) => {
     message: 'Success'
   };
   try {
-    let { orderBy = { timestamp: 'desc' }, where = {}, limit = 20, skip = 0 } = req.body;
-    if (limit > config.limitQuerySize) limit = config.limitQuerySize;
+    let { limit = 20, skip = 0, itemId } = req.query;
+    if (!/^\d+$/.test(limit) || !/^\d+$/.test(skip)) throw new Error('Limit or skip must be a number');
+
+    if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
+
+    const query = {};
+    if (itemId) query.itemId = Number(itemId);
 
     const select = [
       'timestamp',
@@ -33,10 +38,10 @@ export const getTransactionHistories = async (req, res) => {
 
     const docs = await Buy.filterAndPaging(
       {
-        orderBy,
-        query: where,
-        limit,
-        skip,
+        orderBy: { timestamp: 'desc' },
+        query,
+        limit: Number(limit),
+        skip: Number(skip),
         select
       },
       config.cache.ttlQuery

@@ -15,18 +15,15 @@ import {
   updateUserPermission,
   updateUserPermissionBody
 } from './users';
-import { buyTransactionHistories, searchBuyTransactionBody } from './buy';
-
-import { getTopSellers, getTopSolds, recentlyListing } from './analysis';
-
+import { getTopSellers, getTopSold, recentlyListing, getTransactionHistories } from './market-place';
 import { getConfig } from './config';
 
 const apiDocumentation = {
   openapi: '3.0.1',
   info: {
     version: '1.0.0',
-    title: 'RESTful API - Documentation',
-    description: 'Description of RESTful service',
+    title: 'MarketPlace API - Documentation',
+    description: 'Description of MarketPlace service',
     termsOfService: 'https://pallium.io/terms',
     contact: {
       name: 'Pallium Developer',
@@ -40,12 +37,12 @@ const apiDocumentation = {
   },
   servers: [
     {
-      url: 'http://localhost:9000/api/v1',
-      description: 'Local Server'
-    },
-    {
       url: 'https://gateway.pallium.io/api/v1',
       description: 'Production Server'
+    },
+    {
+      url: 'http://localhost:9000/api/v1',
+      description: 'Local Server'
     }
   ],
   tags: [
@@ -58,12 +55,8 @@ const apiDocumentation = {
     //   description: 'Config API'
     // },
     {
-      name: 'Buy',
-      description: 'Buy API'
-    },
-    {
-      name: 'Analysis',
-      description: 'Analysis API'
+      name: 'MarketPlace',
+      description: 'MarketPlace API'
     }
   ],
   paths: {
@@ -97,43 +90,42 @@ const apiDocumentation = {
     // '/configs': {
     //   get: getConfig
     // },
-    '/buy/transactions/search': {
-      post: buyTransactionHistories
+    '/market-place/transactions': {
+      get: getTransactionHistories
     },
-    '/analysis/top-sellers': {
+    '/market-place/top-sellers': {
       get: getTopSellers
     },
-    '/analysis/top-sold': {
-      get: getTopSolds
+    '/market-place/top-sold': {
+      get: getTopSold
     },
-    '/analysis/recently-listing': {
+    '/market-place/recently-listing': {
       get: recentlyListing
     }
-  },
-  components: {
-    securitySchemes: {
-      Token: {
-        type: 'apiKey',
-        name: 'x-token',
-        in: 'header'
-      },
-      RefreshToken: {
-        type: 'apiKey',
-        name: 'x-refresh-token',
-        in: 'header'
-      }
-    },
-    schemas: {
-      // loginBody,
-      // registerBody,
-      // changePasswordBody,
-      // getUsersBody,
-      // updateUserInfoBody,
-      // updateUserPermission,
-      // updateUserPermissionBody,
-      searchBuyTransactionBody
-    }
   }
+  // components: {
+  // securitySchemes: {
+  //   Token: {
+  //     type: 'apiKey',
+  //     name: 'x-token',
+  //     in: 'header'
+  //   },
+  //   RefreshToken: {
+  //     type: 'apiKey',
+  //     name: 'x-refresh-token',
+  //     in: 'header'
+  //   }
+  // },
+  // schemas: {
+  // loginBody,
+  // registerBody,
+  // changePasswordBody,
+  // getUsersBody,
+  // updateUserInfoBody,
+  // updateUserPermission,
+  // updateUserPermissionBody
+  // }
+  // }
 };
 
 export { apiDocumentation };
