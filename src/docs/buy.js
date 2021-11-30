@@ -50,26 +50,21 @@ const priceObject = {
     type: 'int',
     example: 1000000000000000000
   },
-  info: {
-    type: 'object',
-    properties: {
-      address: {
-        type: 'string',
-        example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
-      },
-      symbol: {
-        type: 'string',
-        example: 'SC'
-      },
-      name: {
-        type: 'string',
-        example: 'StableCoin'
-      },
-      decimals: {
-        type: 'int',
-        example: 18
-      }
-    }
+  erc20Address: {
+    type: 'string',
+    example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
+  },
+  decimals: {
+    type: 'int',
+    example: 18
+  },
+  symbol: {
+    type: 'string',
+    example: 'SC'
+  },
+  name: {
+    type: 'string',
+    example: 'StableCoin'
   }
 };
 

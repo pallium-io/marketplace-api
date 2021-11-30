@@ -62,9 +62,6 @@ export const getTopSellers = async (req, res) => {
     let { limit = 10 } = req.query;
     if (!/^\d+$/.test(limit)) throw new Error('Limit must be a number');
     if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
-
-    console.log('limit: ', limit);
-
     const body = [
       {
         $match: {

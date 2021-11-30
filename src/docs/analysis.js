@@ -1,27 +1,4 @@
-import { pageInfoResponse } from './buy';
-
-const priceObject = {
-  value: {
-    type: 'int',
-    example: 1000000000000000000
-  },
-  erc20Address: {
-    type: 'string',
-    example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
-  },
-  decimals: {
-    type: 'int',
-    example: 18
-  },
-  symbol: {
-    type: 'string',
-    example: 'SC'
-  },
-  name: {
-    type: 'string',
-    example: 'StableCoin'
-  }
-};
+import { pageInfoResponse, priceObject } from './buy';
 
 const totalIncomeResponse = {
   numberOfNFTSold: {
@@ -214,6 +191,16 @@ const getTopSellers = {
     {
       Token: [],
       RefreshToken: []
+    }
+  ],
+  parameters: [
+    {
+      name: 'limit',
+      in: 'query',
+      description: 'The numbers of nfts sold to return',
+      required: false,
+      type: 'int',
+      default: 10
     }
   ],
   responses: {
