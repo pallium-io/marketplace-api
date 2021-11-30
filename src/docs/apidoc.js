@@ -124,13 +124,13 @@ const apiDocumentation = {
       }
     },
     schemas: {
-      loginBody,
-      registerBody,
-      changePasswordBody,
-      getUsersBody,
-      updateUserInfoBody,
-      updateUserPermission,
-      updateUserPermissionBody,
+      // loginBody,
+      // registerBody,
+      // changePasswordBody,
+      // getUsersBody,
+      // updateUserInfoBody,
+      // updateUserPermission,
+      // updateUserPermissionBody,
       searchBuyTransactionBody
     }
   }
