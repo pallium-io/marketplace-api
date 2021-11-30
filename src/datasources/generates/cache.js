@@ -29,7 +29,7 @@ const consumePriceInfo = doc => {
       ...item,
       price: {
         value: item?.price?.value,
-        contract_address: item?.price?.info?.address,
+        erc20Address: item?.price?.info?.address,
         decimals: item?.price?.info?.decimals,
         symbol: item?.price?.info?.symbol,
         name: item?.price?.info?.name
@@ -40,7 +40,7 @@ const consumePriceInfo = doc => {
     ...doc,
     price: {
       value: doc?.price?.value,
-      contract_address: doc?.price?.info?.address,
+      erc20Address: doc?.price?.info?.address,
       decimals: doc?.price?.info?.decimals,
       symbol: doc?.price?.info?.symbol,
       name: doc?.price?.info?.name
