@@ -1,9 +1,11 @@
 import { ethers } from 'ethers';
-import config from '../../configs';
+import { DateTime } from 'luxon';
+import flatten from 'lodash.flatten';
+
 import generateDS from '../../datasources';
-import configSC from '../../configs/configSC.dev.js';
 import { parseObjectFieldBigNumber } from '../../utils';
-import { validateLastTxns } from './validation';
+import config from '../../configs';
+import configSC from '../../configs/configSC.dev.js';
 
 const { Transaction, Buy, ListedItem } = generateDS;
 
@@ -57,18 +59,32 @@ export const getTopSellers = async (req, res) => {
     message: 'Success'
   };
   try {
+    let { limit = 10 } = req.query;
+    if (!/^\d+$/.test(limit)) throw new Error('Limit must be a number');
+    if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
+
+    console.log('limit: ', limit);
+
     const body = [
       {
         $match: {
           timestamp: {
-            $gte: parseInt(+new Date().setUTCHours(0, 0, 0, 0) / 1000),
-            $lt: parseInt(+new Date().setUTCHours(23, 59, 59, 999) / 1000)
+            $gte: Math.round(
+              DateTime.fromJSDate(new Date(), { zone: 'utc' })
+                .startOf('day')
+                .valueOf() / 1000
+            ),
+            $lte: Math.round(
+              DateTime.fromJSDate(new Date(), { zone: 'utc' })
+                .endOf('day')
+                .valueOf() / 1000
+            )
           }
         }
       },
       {
         $group: {
-          _id: '$to',
+          _id: '$seller',
           numberOfNFTSold: { $sum: 1 },
           detail: { $push: { itemId: '$itemId', timestamp: '$timestamp', transactionHash: '$transactionHash' } }
         }
@@ -81,7 +97,7 @@ export const getTopSellers = async (req, res) => {
       {
         $sort: { numberOfNFTSold: -1 }
       },
-      { $limit: 10 }
+      { $limit: Number(limit) }
     ];
 
     const data = await Buy.aggregation(body, { ttl: config.cache.ttlQuery });
@@ -95,27 +111,101 @@ export const getTopSellers = async (req, res) => {
 };
 
 export const getTopSold = async (req, res) => {
-  let { limit } = req?.query;
   const result = {
     statusCode: 200,
     message: 'Success',
     data: []
   };
-  let objReq = {};
   try {
-    if (limit) {
-      if (!/^\d+$/.test(limit)) {
-        result.statusCode = 400;
-        result.data = null;
-        result.message = 'Limit must be a number, plz try again';
-        return res.status(result.statusCode).json(result);
+    let { limit = 10 } = req.query;
+    if (!/^\d+$/.test(limit)) throw new Error('Limit must be a number');
+    if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
+
+    const body = [
+      {
+        $match: {
+          timestamp: {
+            $gte: Math.round(
+              DateTime.fromJSDate(new Date(), { zone: 'utc' })
+                .startOf('day')
+                .valueOf() / 1000
+            ),
+            $lte: Math.round(
+              DateTime.fromJSDate(new Date(), { zone: 'utc' })
+                .endOf('day')
+                .valueOf() / 1000
+            )
+          }
+        }
+      },
+      {
+        $sort: { timestamp: -1 }
+      },
+      {
+        $group: {
+          _id: '$itemId',
+          count: { $sum: 1 },
+          items: { $push: '$$ROOT' }
+        }
+      },
+      {
+        $sort: { count: -1 }
+      },
+      {
+        $limit: 1
+      },
+      {
+        $project: {
+          items: { $slice: ['$items', Number(limit)] }
+        }
+      },
+      {
+        $lookup: {
+          from: 'col_erc20Tokens',
+          localField: 'items.price.info',
+          foreignField: '_id',
+          as: 'erc20TokenField'
+        }
+      },
+      { $unwind: { path: '$erc20TokenField' } },
+      {
+        $addFields: {
+          'items.price.contract_address': '$erc20TokenField.address',
+          'items.price.decimals': '$erc20TokenField.decimals',
+          'items.price.symbol': '$erc20TokenField.symbol',
+          'items.price.name': '$erc20TokenField.name'
+        }
       }
-      if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
-      objReq = { ...objReq, limit: Number(limit) };
-    }
-    const docs = await Buy.topSold(objReq);
-    if (docs?.length > 0) {
-      result.data = docs;
+    ];
+
+    let docs = await Buy.aggregation(body, { ttl: config.cache.ttlQuery });
+
+    if (docs[0]?.items?.length) {
+      const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {
+        chainId: configSC.chainIdSC
+      });
+      const contract = new ethers.Contract(configSC.nftCrowdsale, JSON.parse(configSC.nftCrowdsaleABI), provider);
+      let parcel = await contract.parcels(docs[0]?._id);
+      parcel = parseObjectFieldBigNumber(parcel);
+
+      docs = docs.map(doc => {
+        return doc?.items?.map(item => {
+          const { info, ...priceParams } = item.price;
+          return {
+            // _id: item?._id,
+            type: item?.type,
+            item_id: item?.itemId,
+            // token_id: item?.tokenId,
+            contract_address: item?.contractAddress,
+            timestamp: item?.timestamp,
+            tx_hash: item?.transactionHash,
+            bulk_total: parcel?.cap,
+            bulk_quantity: parcel?.cap - parcel?.supply,
+            price: priceParams
+          };
+        });
+      });
+      result.data = flatten(docs);
     }
   } catch (error) {
     result.statusCode = 404;
@@ -163,7 +253,7 @@ export const recentlyListing = async (req, res) => {
         parcel = parseObjectFieldBigNumber(parcel);
 
         return {
-          _id: item?._id,
+          // _id: item?._id,
           type: item?.type,
           item_id: item?.itemId,
           contract_address: item?.contractAddress,
@@ -175,78 +265,6 @@ export const recentlyListing = async (req, res) => {
         };
       })
     );
-  } catch (error) {
-    result.statusCode = 404;
-    result.message = error.message;
-  }
-  return res.status(result.statusCode).json(result);
-};
-
-export const nftMarket = async (req, res) => {
-  let result = {
-    statusCode: 200,
-    message: 'Success'
-  };
-  try {
-    let { limit = 20, skip = 0 } = req.body;
-    if (limit > config.limitQuerySize) limit = config.limitQuerySize;
-
-    // const docs = await Transaction.filterAndPaging(
-    //   {
-    //     orderBy: {
-    //       timestamp: 'desc'
-    //     },
-    //     query: {
-    //       event: SC_EVENT.BUY
-    //     },
-    //     limit,
-    //     skip
-    //   },
-    //   config.cache.ttlQuery
-    // );
-    // result = {
-    //   ...result,
-    //   ...docs
-    // };
-
-    const nftMarket = [
-      {
-        type: 'bulk',
-        itemId: 1,
-        tokenId: 12,
-        contractAddress: '0x2498fEA2c0e2fF98872B3610F28D050221D5Dcc5',
-        price: {
-          value: 1000000000000000000,
-          erc20Address: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641',
-          decimals: 18,
-          symbol: 'SC',
-          name: 'StableCoin'
-        },
-        timestamp: 1637903616,
-        transactionHash: '0xfcc947208cbe0921654548f6f37edab80ce377a5b0bc45f760ab6c3852a89470',
-        bulkTotal: 77998,
-        bulkQty: 2
-      },
-      {
-        type: 'bulk',
-        itemId: 5,
-        tokenId: 15,
-        contractAddress: '0x2498fEA2c0e2fF98872B3610F28D050221D5Dcc5',
-        price: {
-          value: 1000000000000000000,
-          erc20Address: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641',
-          decimals: 18,
-          symbol: 'SC',
-          name: 'StableCoin'
-        },
-        timestamp: 1637903888,
-        transactionHash: '0xfcc947208cbe0921654548f6f37edab80ce377a5b0bc45f760ab6c3852a89471',
-        bulkTotal: 77998,
-        bulkQty: 2
-      }
-    ];
-    result.data = nftMarket;
-    console.log('result: ', result);
   } catch (error) {
     result.statusCode = 404;
     result.message = error.message;

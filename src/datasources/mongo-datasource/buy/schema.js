@@ -10,6 +10,7 @@ const schema = {
   timestamp: Number,
   tokenId: Number,
   buyer: String,
+  seller: String,
   itemId: Number,
   price: {
     value: Number,
