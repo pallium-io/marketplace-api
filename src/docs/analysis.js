@@ -23,50 +23,6 @@ const priceObject = {
   }
 };
 
-const sellerResponse = {
-  _id: {
-    type: 'string',
-    example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
-  },
-  numberOfNFTSold: {
-    type: 'int',
-    example: 7
-  },
-  detail: {
-    type: 'object',
-    itemId: {
-      type: 'int',
-      example: 1
-    },
-    transactionHash: {
-      type: 'string',
-      example: '0x8bcb84ddd61a9319e42e26086a0a4748a5ba3f4f4fc7e4540af83eb5cf4896f5'
-    },
-    timestamp: {
-      type: 'int',
-      example: 1638164064
-    }
-  }
-};
-
-const responseTopSellers = {
-  statusCode: {
-    type: 'int',
-    example: 200
-  },
-  message: {
-    type: 'string',
-    example: 'Success'
-  },
-  data: {
-    type: 'array',
-    items: {
-      type: 'object',
-      properties: sellerResponse
-    }
-  }
-};
-
 const totalIncomeResponse = {
   numberOfNFTSold: {
     type: 'int',
@@ -91,6 +47,44 @@ const totalIncomeResponse = {
   name: {
     type: 'string',
     example: 'StableCoin'
+  }
+};
+
+const sellerDetailResponse = {
+  itemId: {
+    type: 'int',
+    example: 1
+  },
+  totalIncome: { type: 'array', items: { type: 'object', properties: totalIncomeResponse } }
+};
+
+const sellerResponse = {
+  sellerAddress: {
+    type: 'string',
+    example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
+  },
+  totalNFTSold: {
+    type: 'int',
+    example: 20
+  },
+  detail: { type: 'array', items: { type: 'object', properties: sellerDetailResponse } }
+};
+
+const responseTopSellers = {
+  statusCode: {
+    type: 'int',
+    example: 200
+  },
+  message: {
+    type: 'string',
+    example: 'Success'
+  },
+  data: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: sellerResponse
+    }
   }
 };
 
