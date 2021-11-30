@@ -1,11 +1,17 @@
+import { pageInfoResponse } from './buy';
+
 const priceObject = {
   value: {
     type: 'int',
     example: 1000000000000000000
   },
-  address: {
+  contract_address: {
     type: 'string',
     example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
+  },
+  decimals: {
+    type: 'int',
+    example: 18
   },
   symbol: {
     type: 'string',
@@ -14,10 +20,6 @@ const priceObject = {
   name: {
     type: 'string',
     example: 'StableCoin'
-  },
-  decimals: {
-    type: 'int',
-    example: 18
   }
 };
 
@@ -54,7 +56,7 @@ const responseTopSellers = {
   },
   message: {
     type: 'string',
-    example: 'Successful'
+    example: 'Success'
   },
   data: {
     type: 'array',
@@ -65,11 +67,68 @@ const responseTopSellers = {
   }
 };
 
-const itemResponse = {
-  _id: {
-    type: 'string',
-    example: '61a44effa2801139337229f1'
+const totalIncomeResponse = {
+  number_nft_sold: {
+    type: 'int',
+    example: 20
   },
+  value: {
+    type: 'int',
+    example: 1000000000000000000
+  },
+  contract_address: {
+    type: 'string',
+    example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
+  },
+  decimals: {
+    type: 'int',
+    example: 18
+  },
+  symbol: {
+    type: 'string',
+    example: 'SC'
+  },
+  name: {
+    type: 'string',
+    example: 'StableCoin'
+  }
+};
+
+const topSoldResponse = {
+  type: {
+    type: 'string',
+    example: 'bulk'
+  },
+  item_id: { type: 'int', example: 1 },
+  contract_address: {
+    type: 'string',
+    example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
+  },
+  bulk_total: { type: 'int', example: 23600 },
+  bulk_quantity: { type: 'int', example: 23580 },
+  total_nft_sold: { type: 'int', example: 20 },
+  total_income: { type: 'array', items: { type: 'object', properties: totalIncomeResponse } }
+};
+
+const responseTopSolds = {
+  statusCode: {
+    type: 'int',
+    example: 200
+  },
+  message: {
+    type: 'string',
+    example: 'Success'
+  },
+  data: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: topSoldResponse
+    }
+  }
+};
+
+const recentlyListingResponse = {
   type: {
     type: 'string',
     example: 'bulk'
@@ -89,24 +148,6 @@ const itemResponse = {
   price: { type: 'object', properties: priceObject }
 };
 
-const responseTopSolds = {
-  statusCode: {
-    type: 'int',
-    example: 200
-  },
-  message: {
-    type: 'string',
-    example: 'Successful'
-  },
-  data: {
-    type: 'array',
-    items: {
-      type: 'object',
-      properties: { ...itemResponse, token_id: { type: 'int', example: 1 } }
-    }
-  }
-};
-
 const responseRecentlyListing = {
   statusCode: {
     type: 'int',
@@ -114,14 +155,18 @@ const responseRecentlyListing = {
   },
   message: {
     type: 'string',
-    example: 'Successful'
+    example: 'Success'
   },
   data: {
     type: 'array',
     items: {
       type: 'object',
-      properties: itemResponse
+      properties: recentlyListingResponse
     }
+  },
+  pageInfo: {
+    type: 'object',
+    properties: pageInfoResponse
   }
 };
 
@@ -179,7 +224,7 @@ const getTopSellers = {
   ],
   responses: {
     '200': {
-      description: 'Successfully',
+      description: 'Success',
       content: {
         'application/json': {
           schema: {
@@ -216,7 +261,7 @@ const getTopSolds = {
   ],
   responses: {
     '200': {
-      description: 'Successfully',
+      description: 'Success',
       content: {
         'application/json': {
           schema: {
@@ -261,7 +306,7 @@ const recentlyListing = {
   ],
   responses: {
     '200': {
-      description: 'Successfully',
+      description: 'Success',
       content: {
         'application/json': {
           schema: {
