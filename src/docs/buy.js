@@ -1,8 +1,27 @@
-const txnResponse = {
-  _id: {
-    type: 'string',
-    example: '60564fcb544047cdc3844818'
+const priceObject = {
+  value: {
+    type: 'int',
+    example: 1000000000000000000
   },
+  erc20Address: {
+    type: 'string',
+    example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
+  },
+  decimals: {
+    type: 'int',
+    example: 18
+  },
+  symbol: {
+    type: 'string',
+    example: 'SC'
+  },
+  name: {
+    type: 'string',
+    example: 'StableCoin'
+  }
+};
+
+const txnResponse = {
   timestamp: {
     type: 'int',
     example: 1638164064
@@ -35,36 +54,9 @@ const txnResponse = {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
   },
-  value: {
-    type: 'int',
-    example: 0
-  },
   price: {
     type: 'object',
     properties: priceObject
-  }
-};
-
-const priceObject = {
-  value: {
-    type: 'int',
-    example: 1000000000000000000
-  },
-  erc20Address: {
-    type: 'string',
-    example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
-  },
-  decimals: {
-    type: 'int',
-    example: 18
-  },
-  symbol: {
-    type: 'string',
-    example: 'SC'
-  },
-  name: {
-    type: 'string',
-    example: 'StableCoin'
   }
 };
 

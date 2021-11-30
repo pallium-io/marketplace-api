@@ -46,6 +46,11 @@ export const getTransactionHistories = async (req, res) => {
       ...result,
       ...docs
     };
+    result.data = result.data.map(item => {
+      delete item._id;
+      delete item.value;
+      return item;
+    });
   } catch (error) {
     result.statusCode = 404;
     result.message = error.message;
@@ -250,15 +255,14 @@ export const recentlyListing = async (req, res) => {
         parcel = parseObjectFieldBigNumber(parcel);
 
         return {
-          // _id: item?._id,
-          type: item?.type,
-          item_id: item?.itemId,
-          contract_address: item?.contractAddress,
-          timestamp: item?.timestamp,
-          tx_hash: item?.transactionHash,
-          bulk_total: parcel?.cap,
-          bulk_quantity: parcel?.cap - parcel?.supply,
-          price: item?.price
+          type: item.type,
+          itemId: item.itemId,
+          contractAddress: item.contractAddress,
+          timestamp: item.timestamp,
+          transactionHash: item.transactionHash,
+          bulkTotal: parcel?.cap,
+          bulkQuantity: parcel?.cap - parcel?.supply,
+          price: item.price
         };
       })
     );
