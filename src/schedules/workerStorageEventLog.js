@@ -28,8 +28,7 @@ async function processQueue(msg, channel) {
           'Content-Type': 'application/json'
         }
       });
-
-      if (!responseErc20TokenABI) {
+      if (!responseErc20TokenABI?.result) {
         logger.error(responseErc20TokenABI);
         throw new Error('Have an error when call Erc20TokenABI');
       }
@@ -38,7 +37,7 @@ async function processQueue(msg, channel) {
         chainId: configSC.chainIdSC
       });
 
-      const erc20 = new ethers.Contract(price?.address, JSON.parse(responseErc20TokenABI).result, provider);
+      const erc20 = new ethers.Contract(price?.address, JSON.parse(responseErc20TokenABI.result), provider);
       const erc20Decimals = await erc20.decimals();
       const erc20Symbol = await erc20.symbol();
       const erc20Name = await erc20.name();
@@ -140,6 +139,7 @@ async function processQueue(msg, channel) {
 
 const run = async () => {
   try {
+    console.log('Queue Worker storage event log');
     await connectMongoDB();
     // Connect Message queue
     const messageQueue = new MessageQueueService();
