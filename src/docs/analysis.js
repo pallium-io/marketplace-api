@@ -5,7 +5,7 @@ const priceObject = {
     type: 'int',
     example: 1000000000000000000
   },
-  contract_address: {
+  erc20Address: {
     type: 'string',
     example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
   },
@@ -68,7 +68,7 @@ const responseTopSellers = {
 };
 
 const totalIncomeResponse = {
-  number_nft_sold: {
+  numberOfNFTSold: {
     type: 'int',
     example: 20
   },
@@ -76,7 +76,7 @@ const totalIncomeResponse = {
     type: 'int',
     example: 1000000000000000000
   },
-  contract_address: {
+  erc20Address: {
     type: 'string',
     example: '0x7BbDFe11F3d1b1ec607c03EbBC455C312eB78641'
   },
@@ -99,15 +99,15 @@ const topSoldResponse = {
     type: 'string',
     example: 'bulk'
   },
-  item_id: { type: 'int', example: 1 },
-  contract_address: {
+  itemId: { type: 'int', example: 1 },
+  contractAddress: {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
   },
-  bulk_total: { type: 'int', example: 23600 },
-  bulk_quantity: { type: 'int', example: 23580 },
-  total_nft_sold: { type: 'int', example: 20 },
-  total_income: { type: 'array', items: { type: 'object', properties: totalIncomeResponse } }
+  bulkTotal: { type: 'int', example: 23600 },
+  bulkQuantity: { type: 'int', example: 23580 },
+  totalNFTSold: { type: 'int', example: 20 },
+  totalIncome: { type: 'array', items: { type: 'object', properties: totalIncomeResponse } }
 };
 
 const responseTopSolds = {
@@ -133,18 +133,18 @@ const recentlyListingResponse = {
     type: 'string',
     example: 'bulk'
   },
-  item_id: { type: 'int', example: 1 },
-  contract_address: {
+  itemId: { type: 'int', example: 1 },
+  contractAddress: {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
   },
   timestamp: { type: 'int', example: 1638158050 },
-  tx_hash: {
+  transactionHash: {
     type: 'string',
     example: '0x4a9a434f874e4e2533f22f6e05ab44bef28139693552462543a83e9c80d50aaf'
   },
-  bulk_total: { type: 'int', example: 23600 },
-  bulk_quantity: { type: 'int', example: 23580 },
+  bulkTotal: { type: 'int', example: 23600 },
+  bulkQuantity: { type: 'int', example: 23580 },
   price: { type: 'object', properties: priceObject }
 };
 
