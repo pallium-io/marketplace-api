@@ -86,7 +86,7 @@ export default class ModelDataSource extends MongoDataSource {
       return doc?.items?.map(item => {
         const { info, ...priceParams } = item.price;
         return {
-          type: 'bulk',
+          type: item?.type,
           item_id: item?.itemId,
           token_id: item?.tokenId,
           contract_address: item?.contractAddress,

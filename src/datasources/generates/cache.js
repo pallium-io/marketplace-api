@@ -23,6 +23,31 @@ const orderDocs = ids => docs => {
   return ids.map(id => idMap[id]);
 };
 
+const consumePriceInfo = doc => {
+  if (Array.isArray(doc)) {
+    return doc.map(item => ({
+      ...item,
+      price: {
+        value: item?.price?.value,
+        contract_address: item?.price?.info?.address,
+        decimals: item?.price?.info?.decimals,
+        symbol: item?.price?.info?.symbol,
+        name: item?.price?.info?.name
+      }
+    }));
+  }
+  return {
+    ...doc,
+    price: {
+      value: doc?.price?.value,
+      contract_address: doc?.price?.info?.address,
+      decimals: doc?.price?.info?.decimals,
+      symbol: doc?.price?.info?.symbol,
+      name: doc?.price?.info?.name
+    }
+  };
+};
+
 export const createCachingMethods = ({ collection, cache, allowFlushingCollectionCache = false, debug = false }) => {
   const isRedis = typeof cache.store === 'undefined';
   const isMongoose = typeof collection === 'function';
@@ -109,7 +134,8 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
         return JSON.parse(cacheDoc);
       }
 
-      const doc = await loader.load(id);
+      let doc = await loader.load(id);
+      doc = consumePriceInfo(doc);
       await handleCache({
         ttl,
         doc,
@@ -148,7 +174,8 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
       if (cacheDocs) {
         return JSON.parse(cacheDocs);
       }
-      const docs = await queryLoader.load(query);
+      let docs = await queryLoader.load(query);
+      docs = consumePriceInfo(docs);
       await handleCache({
         ttl,
         doc: docs,
@@ -167,11 +194,12 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
       if (cacheDocs) {
         return JSON.parse(cacheDocs);
       }
-      const docs = await queryWithOptionLoader.load({
+      let docs = await queryWithOptionLoader.load({
         query,
         select,
         option
       });
+      docs = consumePriceInfo(docs);
       await handleCache({
         ttl,
         doc: docs,
