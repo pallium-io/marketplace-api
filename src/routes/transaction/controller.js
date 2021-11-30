@@ -85,13 +85,24 @@ export const getTopSellers = async (req, res) => {
 };
 
 export const getTopSold = async (req, res) => {
-  let result = {
+  const { limit } = req?.query;
+  const result = {
     statusCode: 200,
     message: 'Success',
     data: []
   };
+  let objReq = {};
   try {
-    const docs = await Buy.topSold();
+    if (limit) {
+      if (!/^\d+$/.test(limit)) {
+        result.statusCode = 400;
+        result.data = null;
+        result.message = 'Limit must be a number, plz try again';
+        return res.status(result.statusCode).json(result);
+      }
+      objReq = { ...objReq, limit: Number(limit) };
+    }
+    const docs = await Buy.topSold(objReq);
     if (docs?.length > 0) {
       result.data = docs;
     }
