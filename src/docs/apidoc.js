@@ -15,7 +15,7 @@ import {
   updateUserPermission,
   updateUserPermissionBody
 } from './users';
-import { getTopSellers, getTopSold, recentlyListing, getTransactionHistories } from './market-place';
+import { getTopSellers, getTopSold, recentlyListings, getTransactionHistories } from './marketplace';
 import { getConfig } from './config';
 
 const apiDocumentation = {
@@ -90,17 +90,17 @@ const apiDocumentation = {
     // '/configs': {
     //   get: getConfig
     // },
-    '/market-place/transactions': {
+    '/marketplace/transactions': {
       get: getTransactionHistories
     },
-    '/market-place/top-sellers': {
+    '/marketplace/top-sellers': {
       get: getTopSellers
     },
-    '/market-place/top-sold': {
+    '/marketplace/top-sold': {
       get: getTopSold
     },
-    '/market-place/recently-listing': {
-      get: recentlyListing
+    '/marketplace/recently-listings': {
+      get: recentlyListings
     }
   }
   // components: {
