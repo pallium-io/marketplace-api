@@ -22,29 +22,25 @@ const priceObject = {
 };
 
 const txnResponse = {
-  timestamp: {
-    type: 'int',
-    example: 1638164064
-  },
-  tokenId: {
-    type: 'int',
-    example: 26
-  },
-  itemId: {
-    type: 'int',
-    example: 1
+  nftAddress: {
+    type: 'string',
+    example: '0x9882eD5E42C4b7818A86BFC05aAed899a610E60d'
   },
   contractAddress: {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
   },
-  nftAddress: {
-    type: 'string',
-    example: '0x9882eD5E42C4b7818A86BFC05aAed899a610E60d'
-  },
   transactionHash: {
     type: 'string',
     example: '0x8bcb84ddd61a9319e42e26086a0a4748a5ba3f4f4fc7e4540af83eb5cf4896f5'
+  },
+  timestamp: {
+    type: 'int',
+    example: 1638164064
+  },
+  itemId: {
+    type: 'int',
+    example: 1
   },
   from: {
     type: 'string',
@@ -53,6 +49,10 @@ const txnResponse = {
   to: {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
+  },
+  tokenId: {
+    type: 'int',
+    example: 26
   },
   price: {
     type: 'object',
@@ -96,16 +96,16 @@ const responseDocs = {
     type: 'string',
     example: 'Successful'
   },
+  pageInfo: {
+    type: 'object',
+    properties: pageInfoResponse
+  },
   data: {
     type: 'array',
     items: {
       type: 'object',
       properties: txnResponse
     }
-  },
-  pageInfo: {
-    type: 'object',
-    properties: pageInfoResponse
   }
 };
 
@@ -127,20 +127,20 @@ const getTransactionHistories = {
       type: 'int'
     },
     {
-      name: 'skip',
-      in: 'query',
-      description: 'The number of items to skip before starting to collect the result set',
-      required: true,
-      type: 'int',
-      default: 0
-    },
-    {
       name: 'limit',
       in: 'query',
       description: 'The number of items listed to return',
       required: true,
       type: 'int',
       default: 20
+    },
+    {
+      name: 'skip',
+      in: 'query',
+      description: 'The number of items to skip before starting to collect the result set',
+      required: true,
+      type: 'int',
+      default: 0
     }
   ],
   responses: {
@@ -231,13 +231,13 @@ const topSoldResponse = {
     example: 'bulk'
   },
   itemId: { type: 'int', example: 1 },
+  bulkTotal: { type: 'int', example: 23600 },
+  bulkQuantity: { type: 'int', example: 23580 },
+  totalNFTSold: { type: 'int', example: 20 },
   contractAddress: {
     type: 'string',
     example: '0x842452073b2841651D2f36Cb056Ed1c5311ae19b'
   },
-  bulkTotal: { type: 'int', example: 23600 },
-  bulkQuantity: { type: 'int', example: 23580 },
-  totalNFTSold: { type: 'int', example: 20 },
   totalIncome: { type: 'array', items: { type: 'object', properties: totalIncomeResponse } }
 };
 
@@ -288,16 +288,16 @@ const responseRecentlyListing = {
     type: 'string',
     example: 'Success'
   },
+  pageInfo: {
+    type: 'object',
+    properties: pageInfoResponse
+  },
   data: {
     type: 'array',
     items: {
       type: 'object',
       properties: recentlyListingResponse
     }
-  },
-  pageInfo: {
-    type: 'object',
-    properties: pageInfoResponse
   }
 };
 
@@ -357,7 +357,7 @@ const getTopSellers = {
     {
       name: 'limit',
       in: 'query',
-      description: 'The numbers of nfts sold to return',
+      description: 'The numbers of seller nft to return',
       required: false,
       type: 'int',
       default: 10
@@ -429,20 +429,20 @@ const recentlyListings = {
   ],
   parameters: [
     {
-      name: 'skip',
-      in: 'query',
-      description: 'The number of items to skip before starting to collect the result set',
-      required: true,
-      type: 'int',
-      default: 0
-    },
-    {
       name: 'limit',
       in: 'query',
       description: 'The number of items listed to return',
       required: true,
       type: 'int',
       default: 20
+    },
+    {
+      name: 'skip',
+      in: 'query',
+      description: 'The number of items to skip before starting to collect the result set',
+      required: true,
+      type: 'int',
+      default: 0
     }
   ],
   responses: {
