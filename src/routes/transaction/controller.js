@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { DateTime } from 'luxon';
-import flatten from 'lodash.flatten';
 
 import generateDS from '../../datasources';
 import { parseObjectFieldBigNumber } from '../../utils';
@@ -151,68 +150,94 @@ export const getTopSold = async (req, res) => {
       {
         $group: {
           _id: '$itemId',
-          count: { $sum: 1 },
-          items: { $push: '$$ROOT' }
+          totalNFTSold: { $sum: 1 },
+          item: { $push: '$$ROOT' }
         }
       },
       {
-        $sort: { count: -1 }
+        $sort: { totalNFTSold: -1 }
       },
       {
-        $limit: 1
-      },
-      {
-        $project: {
-          items: { $slice: ['$items', Number(limit)] }
-        }
+        $limit: Number(limit)
       },
       {
         $lookup: {
           from: 'col_erc20Tokens',
-          localField: 'items.price.info',
+          localField: 'item.price.info',
           foreignField: '_id',
           as: 'erc20TokenField'
         }
       },
-      { $unwind: { path: '$erc20TokenField' } },
+      { $unwind: { path: '$item' } },
       {
         $addFields: {
-          'items.price.contract_address': '$erc20TokenField.address',
-          'items.price.decimals': '$erc20TokenField.decimals',
-          'items.price.symbol': '$erc20TokenField.symbol',
-          'items.price.name': '$erc20TokenField.name'
+          'item.price.ref': {
+            $filter: {
+              input: '$erc20TokenField',
+              cond: { $eq: ['$$this._id', '$item.price.info'] }
+            }
+          }
         }
+      },
+      { $unwind: { path: '$item.price.ref' } },
+      {
+        $group: {
+          _id: { itemId: '$_id', priceInfo: '$item.price.info' },
+          totalNFTSold: { $first: '$totalNFTSold' },
+          contractAddress: { $first: '$item.contractAddress' },
+          income: {
+            $push: {
+              price: '$item.price'
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: '$_id.itemId',
+          totalNFTSold: { $first: '$totalNFTSold' },
+          contractAddress: { $first: '$contractAddress' },
+          totalIncome: {
+            $push: {
+              numberOfNFTSold: { $size: '$income' },
+              value: { $sum: '$income.price.value' },
+              erc20Address: { $first: '$income.price.ref.address' },
+              decimals: { $first: '$income.price.ref.decimals' },
+              symbol: { $first: '$income.price.ref.symbol' },
+              name: { $first: '$income.price.ref.name' }
+            }
+          }
+        }
+      },
+      {
+        $sort: { totalNFTSold: -1 }
       }
     ];
 
     let docs = await Buy.aggregation(body, { ttl: config.cache.ttlQuery });
 
-    if (docs[0]?.items?.length) {
+    if (docs?.length) {
       const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {
         chainId: configSC.chainIdSC
       });
       const contract = new ethers.Contract(configSC.nftCrowdsale, JSON.parse(configSC.nftCrowdsaleABI), provider);
-      let parcel = await contract.parcels(docs[0]?._id);
-      parcel = parseObjectFieldBigNumber(parcel);
 
-      docs = docs.map(doc => {
-        return doc?.items?.map(item => {
-          const { info, ...priceParams } = item.price;
+      docs = await Promise.all(
+        docs.map(async doc => {
+          const { _id, ...others } = doc;
+          let parcel = await contract.parcels(doc?._id);
+          parcel = parseObjectFieldBigNumber(parcel);
+
           return {
-            // _id: item?._id,
-            type: item?.type,
-            item_id: item?.itemId,
-            // token_id: item?.tokenId,
-            contract_address: item?.contractAddress,
-            timestamp: item?.timestamp,
-            tx_hash: item?.transactionHash,
-            bulk_total: parcel?.cap,
-            bulk_quantity: parcel?.cap - parcel?.supply,
-            price: priceParams
+            type: 'bulk',
+            itemId: _id,
+            bulkTotal: parcel?.cap,
+            bulkQuantity: parcel?.cap - parcel?.supply,
+            ...others
           };
-        });
-      });
-      result.data = flatten(docs);
+        })
+      );
+      result.data = docs;
     }
   } catch (error) {
     result.statusCode = 404;
