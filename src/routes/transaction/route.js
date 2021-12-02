@@ -4,10 +4,10 @@ import { getTransactionHistories, getTopSellers, getTopSold, recentlyListing } f
 const router = Router();
 
 export default () => {
-  router.get('/market-place/transactions', getTransactionHistories);
-  router.get('/market-place/top-sellers', getTopSellers);
-  router.get('/market-place/top-sold', getTopSold);
-  router.get('/market-place/recently-listing', recentlyListing);
+  router.get('/marketplace/transactions', getTransactionHistories);
+  router.get('/marketplace/top-sellers', getTopSellers);
+  router.get('/marketplace/top-sold', getTopSold);
+  router.get('/marketplace/recently-listings', recentlyListing);
 
   return router;
 };

@@ -417,10 +417,10 @@ const getTopSold = {
   }
 };
 
-const recentlyListing = {
+const recentlyListings = {
   tags: ['MarketPlace'],
   description: 'Get recently listed item',
-  operationId: 'recentlyListing',
+  operationId: 'recentlyListings',
   security: [
     {
       Token: [],
@@ -462,4 +462,4 @@ const recentlyListing = {
   }
 };
 
-export { getTopSellers, getTopSold, recentlyListing, getTransactionHistories };
+export { getTopSellers, getTopSold, recentlyListings, getTransactionHistories };
