@@ -18,7 +18,7 @@ export default class ModelDataSource extends MongoDataSource {
         {
           query,
           select,
-          option: { sort, limit, skip: skip * limit }
+          option: { sort, limit, skip }
         },
         { ttl }
       ),

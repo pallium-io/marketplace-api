@@ -6,7 +6,7 @@ import { parseObjectFieldBigNumber } from '../../utils';
 import config from '../../configs';
 import configSC from '../../configs/configSC.dev.js';
 
-const { Transaction, Buy, ListedItem } = generateDS;
+const { Buy, ListedItem } = generateDS;
 
 export const getTransactionHistories = async (req, res) => {
   let result = {
@@ -249,8 +249,7 @@ export const getTopSold = async (req, res) => {
 export const recentlyListing = async (req, res) => {
   let result = {
     statusCode: 200,
-    message: 'Success',
-    data: []
+    message: 'Success'
   };
   try {
     let { limit = 20, skip = 0 } = req.query;
