@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import groupBy from 'lodash.groupby';
 import { DateTime } from 'luxon';
 
 import generateDS from '../../datasources';
@@ -91,24 +92,82 @@ export const getTopSellers = async (req, res) => {
       {
         $group: {
           _id: '$seller',
-          numberOfNFTSold: { $sum: 1 },
-          detail: { $push: { itemId: '$itemId', timestamp: '$timestamp', transactionHash: '$transactionHash' } }
+          totalNFTSold: { $sum: 1 },
+          detail: { $push: '$$ROOT' }
         }
       },
+      {
+        $sort: { totalNFTSold: -1 }
+      },
+      { $limit: Number(limit) },
+      {
+        $lookup: {
+          from: 'col_erc20Tokens',
+          localField: 'detail.price.info',
+          foreignField: '_id',
+          as: 'erc20TokenField'
+        }
+      },
+      { $unwind: { path: '$detail' } },
       {
         $addFields: {
-          sellerAddress: '$_id'
+          'detail.price.ref': {
+            $filter: {
+              input: '$erc20TokenField',
+              cond: { $eq: ['$$this._id', '$detail.price.info'] }
+            }
+          }
+        }
+      },
+      { $unwind: { path: '$detail.price.ref' } },
+      {
+        $group: {
+          _id: { sellerAddress: '$_id', priceInfo: '$detail.price.info', itemId: '$detail.itemId' },
+          totalNFTSold: { $first: '$totalNFTSold' },
+          income: { $push: { price: '$detail.price' } }
         }
       },
       {
-        $sort: { numberOfNFTSold: -1 }
+        $group: {
+          _id: '$_id.sellerAddress',
+          totalNFTSold: { $first: '$totalNFTSold' },
+          detail: {
+            $push: {
+              numberOfNFTSold: { $size: '$income' },
+              itemId: '$_id.itemId',
+              value: { $sum: '$income.price.value' },
+              erc20Address: { $first: '$income.price.ref.address' },
+              decimals: { $first: '$income.price.ref.decimals' },
+              symbol: { $first: '$income.price.ref.symbol' },
+              name: { $first: '$income.price.ref.name' }
+            }
+          }
+        }
       },
-      { $limit: Number(limit) }
+      {
+        $sort: { totalNFTSold: -1 }
+      }
     ];
 
-    const data = await Buy.aggregation(body, { ttl: config.cache.ttlQuery });
+    let data = await Buy.aggregation(body, { ttl: config.cache.ttlQuery });
 
-    result.data = data;
+    if (data?.length) {
+      data = data.map(doc => {
+        let { detail, _id, ...others } = doc;
+        detail = groupBy(detail, 'itemId');
+        detail = Object.entries(detail).map(([key, value]) => {
+          value = value.map(item => {
+            const { itemId, ...other } = item;
+            return other;
+          });
+
+          return { itemId: key, totalIncome: value };
+        });
+        return { sellerAddress: _id, ...others, detail };
+      });
+    }
+
+    result.data = data ?? [];
   } catch (error) {
     result.statusCode = 404;
     result.message = error.message;
