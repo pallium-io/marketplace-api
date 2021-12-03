@@ -5,8 +5,8 @@ import MessageQueueService from '../external-libs/rabbitmq';
 import { connect as connectMongoDB } from '../external-libs/mongoose';
 import generateDS from '../datasources';
 import { SC_EVENT } from '../configs/constant';
-import configSC from '../configs/configSC.dev.js';
 import config from '../configs';
+const configSC = require('../../config-sc.json');
 
 const { ERC20Token, Transaction, Buy, ListedItem } = generateDS;
 
