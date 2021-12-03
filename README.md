@@ -48,6 +48,8 @@ Follow all step bellow to setup your dev environment
 2. Start your environment (We are using Docker for environment setup)
 
 3. Setup environment variables.
+   Config SmartContract ABI and Address in config-sc.json file.
+
    Create environment config file and config `mongo`, `rabbitmq` and `redis` connection params
 
    Generate secret token: `head -n 4096 /dev/urandom | openssl sha1`

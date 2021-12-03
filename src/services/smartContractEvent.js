@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import configSC from '../configs/configSC.dev.js';
 import { parseObjectFieldBigNumber } from '../utils';
+const configSC = require('../../config-sc.json');
 
 const SCEvent = async ({ messageQueue }) => {
   const provider = new ethers.providers.JsonRpcProvider(configSC.networkSC, {

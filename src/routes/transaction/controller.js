@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import generateDS from '../../datasources';
 import { parseObjectFieldBigNumber } from '../../utils';
 import config from '../../configs';
-import configSC from '../../configs/configSC.dev.js';
+const configSC = require('../../../config-sc.json');
 
 const { Buy, ListedItem } = generateDS;
 
