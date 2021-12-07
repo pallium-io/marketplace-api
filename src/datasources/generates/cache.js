@@ -99,7 +99,7 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
       .lean()
       .then(items =>
         queries.map(query => {
-          const { select, option, ...other } = query;
+          const { select: _select, option: _option, ...other } = query;
           return items.filter(sift(other.query));
         })
       );
@@ -149,17 +149,11 @@ export const createCachingMethods = ({ collection, cache, allowFlushingCollectio
       return doc;
     },
 
-    saveCache: async (key, value, ttl = {}) => {
-      return cache.set(key, value, ttl);
-    },
+    saveCache: async (key, value, ttl = {}) => cache.set(key, value, ttl),
 
-    getCache: async key => {
-      return cache.get(key);
-    },
+    getCache: async key => cache.get(key),
 
-    delCache: async key => {
-      return cache.delete(key);
-    },
+    delCache: async key => cache.delete(key),
 
     findManyByIds: (ids, { ttl } = {}) =>
       (ids?.length &&

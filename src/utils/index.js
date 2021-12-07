@@ -122,8 +122,9 @@ const proccessFieldLogical = filter => filter.reduce((acc, item) => [...acc, pro
 
 const isObject = item => typeof item === 'object' && !Array.isArray(item) && item !== null;
 
-const parseObjectFieldBigNumber = data => {
-  return Object.entries(data).reduce((prev, current) => {
+/* eslint prefer-const: 0 */
+const parseObjectFieldBigNumber = data =>
+  Object.entries(data).reduce((prev, current) => {
     let [key, value] = current;
 
     if (isObject(value) && ethers.BigNumber.isBigNumber(value)) {
@@ -148,7 +149,6 @@ const parseObjectFieldBigNumber = data => {
       [key]: value
     };
   }, {});
-};
 
 export {
   isObject,

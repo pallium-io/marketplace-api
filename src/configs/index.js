@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import logger from '../external-libs/winston';
+
 require('dotenv').config();
 
 const schema = Joi.object({
@@ -132,7 +133,7 @@ const envConfig = () => {
     };
 
     logger.info('EnvConfig: Initialized');
-    console.log('config: ', config);
+    logger.info(`Config: ${JSON.stringify(config)}`);
     return config;
   } catch (error) {
     logger.error(`EnvConfig ${error} with details ${JSON.stringify(error.details)}`);

@@ -13,6 +13,7 @@ import {
   createRefreshToken,
   validatePassword
 } from '../../services/authenticate';
+import logger from '../../external-libs/winston';
 
 const { User } = generateDS;
 
@@ -22,7 +23,7 @@ export const getMe = async (req, res) => {
     message: 'Success'
   };
   try {
-    const user = req.user;
+    const { user } = req;
     if (!user?._id) throw Error('Cannot authenticate user.');
 
     const doc = await User.findOneById(user._id, { ttl: config.cache.ttlId });
@@ -67,9 +68,9 @@ export const getUsers = async (req, res) => {
     data: []
   };
   try {
-    let { orderBy, where = {}, limit = 20, skip = 0 } = req.body;
+    const { orderBy, where = {}, skip = 0 } = req.body;
+    let { limit = 20 } = req.body;
     if (limit > config.limitQuerySize) limit = config.limitQuerySize;
-    console.log('req.query: ', req.body);
     const { username, email, name, ...other } = where;
     const query = {
       status: { $ne: SHARED_STATUS.DELETED },
@@ -206,7 +207,6 @@ export const register = async (req, res) => {
 
     result.data = doc;
   } catch (error) {
-    console.log('error: ', error);
     result.statusCode = 404;
     result.message = error.message;
   }
@@ -265,7 +265,7 @@ export const changePassword = async (req, res) => {
     const validateInput = await validateChangePassword(req.body);
     if (validateInput?.length) throw new Error(validateInput.map(item => item.message).join(','));
 
-    const user = req.user;
+    const { user } = req;
     const { oldPassword, newPassword, resetAll } = req.body;
 
     const passwordValidationMessage = validatePassword(newPassword);
@@ -319,7 +319,7 @@ export const updateInfoUser = async (req, res) => {
     if (validateInput?.length) throw new Error(validateInput.map(item => item.message).join(','));
 
     if (!Object.entries(req.body).length) throw new Error('Require update field');
-    const user = req.user;
+    const { user } = req;
     const doc = await User.update(
       { ...req.body, _id: user._id, updatedBy: user._id, lastActivity: new Date() },
       config.cache.ttlId
@@ -346,7 +346,7 @@ export const updatePermission = async (req, res) => {
     if (validateInput?.length) throw new Error(validateInput.map(item => item.message).join(','));
     if (!req.body.status && !req.body.role) throw new Error('Require update field');
 
-    const user = req.user;
+    const { user } = req;
     const { userId, ...info } = req.body;
 
     if (!isValidObjectId(userId)) throw new Error('UserId invalid');
@@ -382,11 +382,11 @@ export const deleteUser = async (req, res) => {
     message: 'Removed Success'
   };
   try {
-    const user = req.user;
+    const { user } = req;
 
     if (!isValidObjectId(req.params.id)) throw new Error('UserId invalid');
     await User.remove({ _id: req.params.id });
-    console.log(`Admin (${user.username || user._id}) removed user id: ${req.params.id}`);
+    logger.warn(`Admin (${user.username || user._id}) removed user id: ${req.params.id}`);
 
     // Logout all devices/browsers
     const cacheKeyToken = `${config.cache.authTokenPrefix}:${req.params.id}`;

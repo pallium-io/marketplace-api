@@ -1,9 +1,10 @@
 import { Router } from 'express';
 
 import { handleUserAuthenticate } from '../services/authenticate';
-import userRoute from './user/route.js';
-import configRoute from './config.route.js';
-import transactionRoute from './transaction/route.js';
+import userRoute from './user/route';
+import configRoute from './config.route';
+import transactionRoute from './transaction/route';
+
 require('dotenv').config();
 
 const routes = Router();

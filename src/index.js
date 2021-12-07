@@ -14,6 +14,7 @@ import MessageQueueService from './external-libs/rabbitmq';
 import logger from './external-libs/winston';
 
 import routes from './routes';
+import healthcheckRoute from './routes/healthcheck.route';
 import config from './configs';
 import initAdmin from './utils/createUser';
 
@@ -47,7 +48,7 @@ async function init() {
   const apiRequestLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: 20, // limit each IP to 20 requests per windowMs
-    handler: function(req, res) {
+    handler(_req, res) {
       return res.status(429).json({
         error: 'You sent too many requests. Please wait a while then try again'
       });
@@ -61,12 +62,13 @@ async function init() {
   app.use(helmet());
 
   // catch 404 and forward to error handler
-  app.use((err, req, res, next) => {
+  app.use((_err, _req, _res, next) => {
     next(createError(404));
   });
 
   // error handler
-  app.use((err, req, res, next) => {
+  /* eslint no-unused-vars: 0 */
+  app.use((err, req, res, _next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -76,22 +78,13 @@ async function init() {
     res.json({ message: 'Not allowed access!' });
   });
 
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.status(404).json();
-  });
-
-  app.get('/health', (req, res) => {
-    res.status(200).json({
-      success: true,
-      name: 'RESTful Service',
-      version: '1.0',
-      status: 'green'
-    });
   });
 
   app.use('/documentation', swaggerUi.serve, swaggerUi.setup(apiDocumentation));
 
-  connectMongoDB()
+  return connectMongoDB()
     .then(db => {
       logger.info('Mongo connect successful!');
       // init user admin
@@ -100,6 +93,8 @@ async function init() {
       smartContractEvent({ messageQueue: MessageQueue });
       // Use Route
       app.use('/api/v1', routes);
+      // Health check
+      app.use('/healthcheck', healthcheckRoute());
       // The `listen` method launches a web server.
       app.listen(config.port, () => {
         logger.info(`🚀 Server ready at http://localhost:${config.port}/api/v1`);
@@ -113,4 +108,7 @@ async function init() {
     });
 }
 
-init();
+init().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

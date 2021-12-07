@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { parseObjectFieldBigNumber } from '../utils';
+
 const configSC = require('../../config-sc.json');
 
 const SCEvent = async ({ messageQueue }) => {
@@ -20,7 +21,7 @@ const SCEvent = async ({ messageQueue }) => {
     const { from, to, gasUsed, logs } = dataTransactionReceipt;
 
     // retreive tokenId from the buy transaction
-    let tokenIds = [];
+    const tokenIds = [];
     logs.forEach(l => {
       const { data, topics, address } = l;
       // only care about the event emitted from the nft contract
@@ -59,7 +60,6 @@ const SCEvent = async ({ messageQueue }) => {
       gasUsed,
       type: 'bulk'
     };
-    // console.log('storageTransaction: ', storageTransaction);
 
     const data = parseObjectFieldBigNumber(storageTransaction);
     console.log('Buy: ', data);
@@ -68,7 +68,7 @@ const SCEvent = async ({ messageQueue }) => {
   });
 
   contract.on('ListedItem', async (itemId, price, erc20Address, cap, event) => {
-    console.log('event ListedItem', { itemId, price, erc20Address, cap, event });
+    console.log('Event ListedItem', { itemId, price, erc20Address, cap, event });
 
     const dataBlock = await provider.getBlock(event.blockHash);
     const dataTransaction = await provider.getTransaction(event.transactionHash);
@@ -101,7 +101,6 @@ const SCEvent = async ({ messageQueue }) => {
       value,
       type: 'bulk'
     };
-    // console.log('storageTransaction: ', storageTransaction);
 
     const data = parseObjectFieldBigNumber(storageTransaction);
     console.log('ListedItem: ', data);
@@ -110,7 +109,7 @@ const SCEvent = async ({ messageQueue }) => {
   });
 
   contract.on('OwnershipTransferred', async (previousOwner, newOwner, event) => {
-    console.log('event OwnershipTransferred', previousOwner, newOwner, event);
+    console.log('Event OwnershipTransferred', previousOwner, newOwner, event);
 
     const dataBlock = await provider.getBlock(event.blockHash);
     const dataTransaction = await provider.getTransaction(event.transactionHash);
@@ -129,11 +128,6 @@ const SCEvent = async ({ messageQueue }) => {
       transactionHash: event.transactionHash,
       eventName: event.event,
       timestamp,
-      itemId,
-      price: {
-        value: price,
-        erc20Address
-      },
       previousOwner,
       newOwner,
       from,
@@ -142,7 +136,6 @@ const SCEvent = async ({ messageQueue }) => {
       gasPrice,
       value
     };
-    // console.log('storageTransaction: ', storageTransaction);
 
     const data = parseObjectFieldBigNumber(storageTransaction);
     console.log('OwnershipTransferred: ', data);

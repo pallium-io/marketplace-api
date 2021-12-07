@@ -57,21 +57,17 @@ const encryptPassword = password => {
   }
 };
 
-const comparePassword = (currentPassword, candidatePassword) => {
-  return bcrypt.compareSync(candidatePassword, currentPassword);
-};
+const comparePassword = (currentPassword, candidatePassword) => bcrypt.compareSync(candidatePassword, currentPassword);
 
-const createAccessToken = ({ _id, username, role, status }) => {
-  return sign({ _id, username, role, status }, config.jwt.secret, {
+const createAccessToken = ({ _id, username, role, status }) =>
+  sign({ _id, username, role, status }, config.jwt.secret, {
     expiresIn: config.jwt.expiration
   });
-};
 
-const createRefreshToken = ({ _id, username, role, status }) => {
-  return sign({ _id, username, role, status }, config.jwt.secretRefresh, {
+const createRefreshToken = ({ _id, username, role, status }) =>
+  sign({ _id, username, role, status }, config.jwt.secretRefresh, {
     expiresIn: config.jwt.expirationRefresh
   });
-};
 
 const validatePassword = password => {
   if (!password) return 'Password required';

@@ -1,3 +1,45 @@
+const internalServerError = {
+  description: 'Internal Server Error',
+  content: {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          statusCode: {
+            type: 'int',
+            example: 500
+          },
+          message: {
+            type: 'string',
+            example: 'Internal Server Error'
+          }
+        }
+      }
+    }
+  }
+};
+
+const notFound = {
+  description: 'Resource not found',
+  content: {
+    'application/json': {
+      schema: {
+        type: 'object',
+        properties: {
+          statusCode: {
+            type: 'int',
+            example: 404
+          },
+          message: {
+            type: 'string',
+            example: 'Not found'
+          }
+        }
+      }
+    }
+  }
+};
+
 const priceObject = {
   value: {
     type: 'int',
@@ -297,48 +339,6 @@ const responseRecentlyListing = {
     items: {
       type: 'object',
       properties: recentlyListingResponse
-    }
-  }
-};
-
-const internalServerError = {
-  description: 'Internal Server Error',
-  content: {
-    'application/json': {
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: {
-            type: 'int',
-            example: 500
-          },
-          message: {
-            type: 'string',
-            example: 'Internal Server Error'
-          }
-        }
-      }
-    }
-  }
-};
-
-const notFound = {
-  description: 'Resource not found',
-  content: {
-    'application/json': {
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: {
-            type: 'int',
-            example: 404
-          },
-          message: {
-            type: 'string',
-            example: 'Not found'
-          }
-        }
-      }
     }
   }
 };

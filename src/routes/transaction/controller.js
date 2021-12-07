@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import generateDS from '../../datasources';
 import { parseObjectFieldBigNumber } from '../../utils';
 import config from '../../configs';
+
 const configSC = require('../../../config-sc.json');
 
 const { Buy, ListedItem } = generateDS;
@@ -15,7 +16,8 @@ export const getTransactionHistories = async (req, res) => {
     message: 'Success'
   };
   try {
-    let { limit = 20, skip = 0, itemId } = req.query;
+    const { skip = 0, itemId } = req.query;
+    let { limit = 20 } = req.query;
     if (!/^\d+$/.test(limit) || !/^\d+$/.test(skip)) throw new Error('Limit or skip must be a number');
 
     if (Number(limit) > config.limitQuerySize) limit = config.limitQuerySize;
@@ -64,7 +66,7 @@ export const getTransactionHistories = async (req, res) => {
 };
 
 export const getTopSellers = async (req, res) => {
-  let result = {
+  const result = {
     statusCode: 200,
     message: 'Success'
   };
@@ -79,6 +81,7 @@ export const getTopSellers = async (req, res) => {
             $gte: Math.round(
               DateTime.fromJSDate(new Date(), { zone: 'utc' })
                 .startOf('day')
+                .minus({ days: 7 })
                 .valueOf() / 1000
             ),
             $lte: Math.round(
@@ -153,7 +156,8 @@ export const getTopSellers = async (req, res) => {
 
     if (data?.length) {
       data = data.map(doc => {
-        let { detail, _id, ...others } = doc;
+        const { _id, ...others } = doc;
+        let { detail } = doc;
         detail = groupBy(detail, 'itemId');
         detail = Object.entries(detail).map(([key, value]) => {
           value = value.map(item => {
@@ -193,6 +197,7 @@ export const getTopSold = async (req, res) => {
             $gte: Math.round(
               DateTime.fromJSDate(new Date(), { zone: 'utc' })
                 .startOf('day')
+                .minus({ days: 7 })
                 .valueOf() / 1000
             ),
             $lte: Math.round(
@@ -284,7 +289,7 @@ export const getTopSold = async (req, res) => {
       docs = await Promise.all(
         docs.map(async doc => {
           const { _id, ...others } = doc;
-          let parcel = await contract.parcels(doc?._id);
+          let parcel = await contract.parcels(_id);
           parcel = parseObjectFieldBigNumber(parcel);
 
           return {
@@ -311,7 +316,8 @@ export const recentlyListing = async (req, res) => {
     message: 'Success'
   };
   try {
-    let { limit = 20, skip = 0 } = req.query;
+    let { limit = 20 } = req.query;
+    const { skip = 0 } = req.query;
     if (!/^\d+$/.test(limit) || !/^\d+$/.test(skip)) {
       result.statusCode = 400;
       result.data = null;
