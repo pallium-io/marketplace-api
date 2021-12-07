@@ -3,7 +3,6 @@ export default function permit({ isAuthenticated = false, permittedRoles = [] })
   // return a middleware
   return (request, response, next) => {
     const user = request.user || null;
-    console.log('user: ', user);
     if (user && isAuthenticated && !permittedRoles.length) {
       next();
     } else if (user && isAuthenticated && permittedRoles.includes(user.role)) {

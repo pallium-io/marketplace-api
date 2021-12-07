@@ -6,6 +6,7 @@ import { connect as connectMongoDB } from '../external-libs/mongoose';
 import generateDS from '../datasources';
 import { SC_EVENT } from '../configs/constant';
 import config from '../configs';
+
 const configSC = require('../../config-sc.json');
 
 const { ERC20Token, Transaction, Buy, ListedItem } = generateDS;
@@ -16,7 +17,6 @@ async function processQueue(msg, channel) {
     // Parse message queue
     const body = msg.content.toString();
     const data = JSON.parse(body);
-    console.log('data: ', data);
     const { price, tokenIds, ...params } = data;
 
     let erc20Existed = await ERC20Token.collection.findOne({ address: price?.address }).exec();
@@ -77,12 +77,11 @@ async function processQueue(msg, channel) {
           )
         );
       else {
-        const result = await Transaction.collection.create({
+        await Transaction.collection.create({
           ...data,
           seller,
           price: { value: price?.value, info: erc20Existed._id }
         });
-        console.log('result: ', result);
       }
     } else {
       logger.warn(`txnHashExisted: ${body}`);
@@ -103,12 +102,11 @@ async function processQueue(msg, channel) {
           )
         );
       else {
-        const result = await Buy.collection.create({
+        await Buy.collection.create({
           ...data,
           seller,
           price: { value: price?.value, info: erc20Existed._id }
         });
-        console.log('Buy: ', result);
       }
     }
 
@@ -116,7 +114,7 @@ async function processQueue(msg, channel) {
     // Upsert data listedItem with unique key itemId
     if (data.eventName === SC_EVENT.LISTED_ITEM) {
       const { itemId, ...listedItemParams } = data;
-      const result = await ListedItem.collection.findOneAndUpdate(
+      await ListedItem.collection.findOneAndUpdate(
         { itemId },
         { ...listedItemParams, price: { value: price?.value, info: erc20Existed._id } },
         {
@@ -124,26 +122,11 @@ async function processQueue(msg, channel) {
           upsert: true // Make this update into an upsert
         }
       );
-      console.log('ListedItem: ', result);
     }
-
-    // const txnHashExisted = await Transaction.collection.exists({ transactionHash });
-    // if (!txnHashExisted) {
-    //   const result = await Transaction.collection.create(data);
-    //   console.log('result: ', result);
-    // } else {
-    //   logger.warn(`txnHashExisted: ${body}`);
-    // }
 
     await channel.ack(msg);
     return true;
   } catch (error) {
-    // Ignore duplicate transaction hash
-    // if (error.code === 11000) {
-    //   logger.warn(error);
-    //   await channel.ack(msg);
-    //   return true;
-    // }
     logger.error(error);
     await channel.reject(msg, false);
     return Promise.reject(error);

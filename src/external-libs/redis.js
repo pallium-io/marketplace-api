@@ -6,9 +6,7 @@ export const RedisConfigOption = {
   port: config.redis.port,
   password: config.redis.password,
   db: config.redis.dbName,
-  retry_strategy: options => {
-    return Math.max(options.attempt * 100, 3000);
-  }
+  retry_strategy: options => Math.max(options.attempt * 100, 3000)
 };
 const redis = new Redis(RedisConfigOption);
 

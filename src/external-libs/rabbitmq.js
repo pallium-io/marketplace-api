@@ -3,6 +3,7 @@ import config from '../configs';
 
 export default class MessageQueueService {
   static channel;
+
   static queueName;
 
   constructor(queueName = config.amqp.queueSCEvent) {
@@ -11,16 +12,12 @@ export default class MessageQueueService {
 
   async connect() {
     try {
-      let connectRabbitMQ = amqp.connect(
+      const connectRabbitMQ = amqp.connect(
         `amqp://${config.amqp.username}:${config.amqp.password}@${config.amqp.host}:${config.amqp.port}`
       );
       this.channel = await connectRabbitMQ
-        .then(conn => {
-          return conn.createChannel();
-        })
-        .then(ch => {
-          return ch;
-        });
+        .then(conn => conn.createChannel())
+        .then(ch => ch);
       // durable:true - means the queue definition will survive a server restart
       await this.channel.assertQueue(this.queueName, { durable: true });
     } catch (e) {
